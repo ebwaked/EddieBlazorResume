@@ -1,0 +1,22 @@
+﻿@using System.Text.Json
+@using Microsoft.Extensions.Configuration;
+@using EddieBlazorResume.Client.Services
+
+@page "/resume"
+
+<PageTitle>Resume</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Resume</MudText>
+
+<MudText Typo="Typo.h5">Populated from GoogleDocs</MudText>
+
+<iframe style="height:800px" src="https://docs.google.com/document/d/e/2PACX-1vSYMz4HVX3eDCz91pu4oKFW0gyiwg-LY-e6JJrr1_W9BHGuZYGyh2qvnqDFxUIYBQ/pub?embedded=true"></iframe>
+
+@code {
+    // private string errorMessage;
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     var data = await new HttpClientHelper("");
+    // }
+}
