@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "SMTP": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 33016,
+      "useSSL": false
+    }
+  }
+}
