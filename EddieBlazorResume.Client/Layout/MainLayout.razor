@@ -1,5 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @using EddieBlazorResume.Client.Components
+@using System.Diagnostics.CodeAnalysis
 
 <MyMudThemeProvider />
 <MyMudProviders />
@@ -28,6 +29,7 @@
 
 @code {
     private MudTheme _theme = new();
+    
     private MudThemeProvider _mudThemeProvider;
     private bool _isDarkMode;
     bool _drawerOpen = true;

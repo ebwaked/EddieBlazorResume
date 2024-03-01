@@ -1,6 +1,6 @@
 ﻿public partial class ConnectBase
 {
-    protected override Task OnInitializedAsync()
+    protected void OnInitialized()
     {
         // do stuff
     }
