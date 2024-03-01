@@ -1,5 +1,4 @@
 ﻿@page "/connect"
-@inject HttpClient sp
 
 <h3>Connect</h3>
 
@@ -8,9 +7,11 @@
 @using Newtonsoft.Json
 @using System.Text
 
-<MudAlert Severity="Severity.Warning">In progress: Finished building the basic form with validation, need to hook up SMTP Server and deploy as an Azure Function App. 
+<MudAlert Severity="Severity.Warning">
+    In progress: Finished building the basic form with validation, need to hook up SMTP Server and deploy as an Azure Function App.
     <br />
-    Code for SMTP Azure Function in this GitHub repo</MudAlert>
+    Code for SMTP Azure Function in this GitHub repo
+</MudAlert>
 
 <MudGrid>
     <MudItem xs="12" sm="7">
@@ -98,7 +99,12 @@
 
             request.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
 
-            HttpResponseMessage responseMsg = await sp.SendAsync(request).ConfigureAwait(false);
+            var httpClient = new HttpClient
+                {
+                    BaseAddress = new Uri("http://www.google.com")
+                };
+
+            HttpResponseMessage responseMsg = await httpClient.SendAsync(request).ConfigureAwait(false);
 
             if (responseMsg == null)
             {
