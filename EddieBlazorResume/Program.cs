@@ -9,6 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 builder.Services.AddMudServices();
+//builder.WebHost.UseStaticWebAssets();
 
 var app = builder.Build();
 

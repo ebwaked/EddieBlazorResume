@@ -1,7 +1,4 @@
-﻿using System.Net.Http;
-using System.Threading.Tasks;
-
-namespace EddieBlazorResume.Client.Services
+﻿namespace EddieBlazorResume.Client.Services
 {   
     public class HttpClientHelper
     {
