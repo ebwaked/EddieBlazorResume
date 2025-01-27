@@ -1,4 +1,7 @@
-﻿@page "/connect"
+﻿@using System.Text.Json
+@inject HttpClient HttpClient
+
+@page "/connect"
 
 <h3>Connect</h3>
 
@@ -7,22 +10,17 @@
 @using Newtonsoft.Json
 @using System.Text
 
-@* <MudAlert Severity="Severity.Warning">
-    In progress: Finished building the basic form with validation, need to hook up SMTP Server and deploy as an Azure Function App.
-    <br />
-    Code for SMTP Azure Function in this GitHub repo
-</MudAlert> *@
-
 <MudGrid>
     <MudItem xs="12" sm="7">
         <MudPaper Class="pa-4">
-            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
-                <MudTextField T="string" Label="Name" Required="true" RequiredError="Name is required!" />
-                <MudTextField T="string" Label="Email" Required="true" RequiredError="Email is required!"
-                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+            <MudForm @ref="form" Model="@contact" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField T="string" Label="Name" @bind-Value="@contact.Name" Required="true" RequiredError="Name is required!" />
+                <MudTextField T="string" Label="Email" @bind-Value="@contact.Email" Required="true" RequiredError="Email is required!"
+                Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+                <MudTextField T="string" Label="Message" @bind-Value="@contact.Message" Required="false" />
                 <div class="d-flex">
                     <MudText>Select connection type</MudText>
-                    <MudRadioGroup T="string" Required="true" RequiredError="Account type is required!">
+                    <MudRadioGroup T="string" @bind-Value="@contact.ConnectionType" Required="true" RequiredError="Account type is required!">
                         <MudRadio Option="@("Personal")">Personal</MudRadio>
                         <MudRadio Option="@("Professional")">Professional</MudRadio>
                     </MudRadioGroup>
@@ -34,9 +32,7 @@
             </MudForm>
         </MudPaper>
         <MudPaper Class="pa-4 mt-4">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>form.Validate())">Validate</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
-            <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@(()=>form.ResetValidation())">Reset Validation</MudButton>
+            <MudAlert Severity="Severity.Info">@statusMessage</MudAlert>
         </MudPaper>
     </MudItem>
     <MudItem xs="12" sm="5">
@@ -54,31 +50,9 @@
     bool success;
     string[] errors = { };
     MudForm form;
-    MudTextField<string> pwField1;
-
-    private IEnumerable<string> PasswordStrength(string pw)
-    {
-        if (string.IsNullOrWhiteSpace(pw))
-        {
-            yield return "Password is required!";
-            yield break;
-        }
-        if (pw.Length < 8)
-            yield return "Password must be at least of length 8";
-        if (!Regex.IsMatch(pw, @"[A-Z]"))
-            yield return "Password must contain at least one capital letter";
-        if (!Regex.IsMatch(pw, @"[a-z]"))
-            yield return "Password must contain at least one lowercase letter";
-        if (!Regex.IsMatch(pw, @"[0-9]"))
-            yield return "Password must contain at least one digit";
-    }
-
-    private string PasswordMatch(string arg)
-    {
-        if (pwField1.Value != arg)
-            return "Passwords don't match";
-        return null;
-    }
+    private string? statusMessage;
+    public EmailRequest emailRequest = new EmailRequest();
+    public Contact contact = new Contact();
 
     private void SubmitVoid()
     {
@@ -89,32 +63,44 @@
         }
     }
 
+    public class Contact
+    {
+        public string? Name { get; set; }
+        public string? Email { get; set; }
+        public string? ConnectionType { get; set; }
+        public string? Message { get; set; }
+    }
+
     private async void SendMail()
     {
-        var requestUri = "secret";
+        // if (responseMsg == null)
+        // {
+        //     throw new InvalidOperationException(
+        //         string.Format(
+        //             "The response message was null when executing operation {0}.",
+        //             request.Method));
+        // }
 
-        using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUri))
+        emailRequest.Body = JsonConvert.SerializeObject(form.Model);
+        emailRequest.Subject = "Inquiry from DevEddie.com";
+        emailRequest.ToEmail = "eddie.waked+inquiries@gmail.com";
+
+        try
         {
-            var body = form?.Model?.ToString();
+            var response = await HttpClient.PostAsJsonAsync("SendEmail", emailRequest);
 
-            request.Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
-
-            var httpClient = new HttpClient
-                {
-                    BaseAddress = new Uri("http://www.google.com")
-                };
-
-            HttpResponseMessage responseMsg = await httpClient.SendAsync(request).ConfigureAwait(false);
-
-            if (responseMsg == null)
+            if (response.IsSuccessStatusCode)
             {
-                throw new InvalidOperationException(
-                    string.Format(
-                        "The response message was null when executing operation {0}.",
-                        request.Method));
+                statusMessage = "Email sent successfully!";
             }
-
-            //return responseMsg;
+            else
+            {
+                statusMessage = $"Failed to send email. Status: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
         }
     }
 }
