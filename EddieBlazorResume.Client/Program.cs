@@ -9,6 +9,6 @@ builder.Services.AddMudServices();
 var localUriString = "http://localhost:7071/";
 var prodUriString = "https://emailfunction2025.azurewebsites.net/";
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(localUriString + "api/") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(prodUriString + "api/") });
 
 await builder.Build().RunAsync();
