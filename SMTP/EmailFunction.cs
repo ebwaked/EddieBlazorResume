@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using Shared;
 
 namespace SMTP
 {
@@ -18,7 +19,7 @@ namespace SMTP
         [FunctionName("SendEmail")]
         [return: SendGrid(ApiKey = "SendGridApiKey")]
         public static SendGridMessage Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)] HttpRequest req,
             ILogger log)
         {
             log.LogInformation("Processing email request...");
@@ -74,12 +75,5 @@ namespace SMTP
 
             return msg;
         }
-    }
-
-    public class EmailRequest
-    {
-        public string ToEmail { get; set; }
-        public string Subject { get; set; }
-        public string Body { get; set; }
     }
 }
