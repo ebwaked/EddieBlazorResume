@@ -17,7 +17,7 @@
             <MudForm @ref="form" Model="@contact" @bind-IsValid="@success" @bind-Errors="@errors">
                 <MudTextField T="string" Label="Name" @bind-Value="@contact.Name" Required="true" RequiredError="Name is required!" />
                 <MudTextField T="string" Label="Email" @bind-Value="@contact.Email" Required="true" RequiredError="Email is required!"
-                Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
                 <MudTextField T="string" Label="Message" @bind-Value="@contact.Message" Required="false" />
                 <div class="d-flex">
                     <MudText>Select connection type</MudText>
@@ -36,15 +36,18 @@
             <MudAlert Severity="Severity.Info">@statusMessage</MudAlert>
         </MudPaper>
     </MudItem>
-    <MudItem xs="12" sm="5">
-        <MudPaper Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.subtitle2">@($"Form Errors ({errors.Length})")</MudText>
-            @foreach (var error in errors)
-            {
-                <MudText Color="@Color.Error">@error</MudText>
-            }
-        </MudPaper>
-    </MudItem>
+    @if (errors.Length > 0)
+    {
+        <MudItem xs="12" sm="5">
+            <MudPaper Class="pa-4 mud-height-full">
+                <MudText Typo="Typo.subtitle2">@($"Form Errors ({errors.Length})")</MudText>
+                @foreach (var error in errors)
+                {
+                    <MudText Color="@Color.Error">@error</MudText>
+                }
+            </MudPaper>
+        </MudItem>
+    }
 </MudGrid>
 
 @code {
@@ -61,7 +64,6 @@
         if (form.IsValid)
         {
             SendMail();
-
         }
     }
 
@@ -78,7 +80,6 @@
             if (response.IsSuccessStatusCode)
             {
                 statusMessage = "Email sent successfully!";
-                contact.ConnectionType = null;
                 contact.Email = null;
                 contact.Message = null;
                 contact.Name = null;
