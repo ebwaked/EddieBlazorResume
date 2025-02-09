@@ -1,9 +1,10 @@
 ﻿@using System.Text.Json
+@using Shared
 @inject HttpClient HttpClient
 
 @page "/connect"
 
-<h3>Connect</h3>
+<h3>Connect - Via an Azure Function App using a Sendgrid decorator</h3>
 
 @using System.Text.RegularExpressions
 @using System.ComponentModel.DataAnnotations
@@ -37,7 +38,7 @@
     </MudItem>
     <MudItem xs="12" sm="5">
         <MudPaper Class="pa-4 mud-height-full">
-            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+            <MudText Typo="Typo.subtitle2">@($"Form Errors ({errors.Length})")</MudText>
             @foreach (var error in errors)
             {
                 <MudText Color="@Color.Error">@error</MudText>
@@ -60,27 +61,12 @@
         if (form.IsValid)
         {
             SendMail();
-        }
-    }
 
-    public class Contact
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? ConnectionType { get; set; }
-        public string? Message { get; set; }
+        }
     }
 
     private async void SendMail()
     {
-        // if (responseMsg == null)
-        // {
-        //     throw new InvalidOperationException(
-        //         string.Format(
-        //             "The response message was null when executing operation {0}.",
-        //             request.Method));
-        // }
-
         emailRequest.Body = JsonConvert.SerializeObject(form.Model);
         emailRequest.Subject = "Inquiry from DevEddie.com";
         emailRequest.ToEmail = "eddie.waked+inquiries@gmail.com";
@@ -92,11 +78,17 @@
             if (response.IsSuccessStatusCode)
             {
                 statusMessage = "Email sent successfully!";
+                contact.ConnectionType = null;
+                contact.Email = null;
+                contact.Message = null;
+                contact.Name = null;
             }
             else
             {
                 statusMessage = $"Failed to send email. Status: {response.StatusCode}";
             }
+
+            StateHasChanged();
         }
         catch (Exception ex)
         {
